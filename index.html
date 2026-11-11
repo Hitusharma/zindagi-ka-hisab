@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ज़िंदगी का हिसाब</title>
+<style>
+  body { margin:0; font-family: Arial, sans-serif; background: linear-gradient(135deg,#1a1a2e,#16213e); color:#fff; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+  .box { width:92%; max-width:480px; text-align:center; padding:24px; }
+  h1 { font-size:28px; margin-bottom:6px; }
+  p.sub { color:#b8c1ec; margin-top:0; }
+  input { padding:12px; font-size:18px; border-radius:10px; border:none; width:70%; }
+  button { padding:12px 22px; font-size:18px; border:none; border-radius:10px; background:#e94560; color:#fff; cursor:pointer; margin-top:12px; }
+  .card { background:rgba(255,255,255,0.08); border-radius:14px; padding:14px; margin:10px 0; }
+  .num { font-size:26px; font-weight:bold; color:#ffd369; }
+  .lbl { font-size:14px; color:#b8c1ec; }
+  #result { display:none; }
+  #shareBtn { background:#0f9d58; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>⏳ ज़िंदगी का हिसाब</h1>
+  <p class="sub">अपनी जन्मतारीख़ डालो और देखो अब तक का सफ़र</p>
+  <input type="date" id="dob">
+  <br>
+  <button onclick="start()">हिसाब दिखाओ</button>
+
+  <div id="result">
+    <div class="card"><div class="num" id="days">0</div><div class="lbl">दिन जी चुके</div></div>
+    <div class="card"><div class="num" id="secs">0</div><div class="lbl">सेकंड जी चुके (हर पल बढ़ रहा है)</div></div>
+    <div class="card"><div class="num" id="beats">0</div><div class="lbl">बार दिल धड़क चुका (लगभग)</div></div>
+    <div class="card"><div class="num" id="breaths">0</div><div class="lbl">साँसें ली हैं (लगभग)</div></div>
+    <div class="card"><div class="num" id="diwali">0</div><div class="lbl">दिवाली देख चुके (लगभग)</div></div>
+    <div class="card"><div class="num" id="nextbd">0</div><div class="lbl">दिन बाद अगला जन्मदिन</div></div>
+    <button id="shareBtn" onclick="share()">दोस्तों को भेजो</button>
+  </div>
+</div>
+
+<script>
+var timer = null;
+
+function start() {
+  var v = document.getElementById('dob').value;
+  if (!v) { alert('पहले जन्मतारीख़ चुनो'); return; }
+  var dob = new Date(v);
+  if (dob > new Date()) { alert('जन्मतारीख़ भविष्य की नहीं हो सकती'); return; }
+  document.getElementById('result').style.display = 'block';
+  if (timer) clearInterval(timer);
+  update(dob);
+  timer = setInterval(function(){ update(dob); }, 1000);
+}
+
+function fmt(n) { return Math.floor(n).toLocaleString('en-IN'); }
+
+function update(dob) {
+  var now = new Date();
+  var secs = (now - dob) / 1000;
+  var days = secs / 86400;
+  var years = days / 365.25;
+  document.getElementById('days').innerText = fmt(days);
+  document.getElementById('secs').innerText = fmt(secs);
+  document.getElementById('beats').innerText = fmt(secs / 60 * 72);
+  document.getElementById('breaths').innerText = fmt(secs / 60 * 16);
+  document.getElementById('diwali').innerText = fmt(years);
+  var nb = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
+  if (nb < now) nb = new Date(now.getFullYear() + 1, dob.getMonth(), dob.getDate());
+  document.getElementById('nextbd').innerText = Math.ceil((nb - now) / 86400000);
+}
+
+function share() {
+  var d = document.getElementById('days').innerText;
+  var text = 'मैं अब तक ' + d + ' दिन जी चुका हूँ! तुम अपना हिसाब देखो: ' + location.href;
+  if (navigator.share) { navigator.share({ text: text }); }
+  else { window.open('https://wa.me/?text=' + encodeURIComponent(text)); }
+}
+</script>
+</body>
+</html>
